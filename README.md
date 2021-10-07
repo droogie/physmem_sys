@@ -1,6 +1,6 @@
 # physmem_sys
 
-An unrestricted driver to map physical memory to userland. It exposes an IOCTL for requesting a physical address and length, which will return a virtual address to leverage in userland.
+An unrestricted Windows driver to map physical memory to userland. It exposes an `IOCTL` for requesting a physical address and length, which will return a virtual address to leverage in userland.
 
 ## Build
 

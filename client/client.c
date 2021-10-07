@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	HANDLE hDevice = CreateFile(L"\\\\.\\Physmem", GENERIC_WRITE, 
-		FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
+		FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		perror("CreateFile()");
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 		IOCTL_PHYSMEM_GET_OBJECT_HANDLE,
 		&PhysmemRequest, sizeof(PHYSMEM_REQUEST),
 		&virtaddr, sizeof(UINT64),
-		&returned, nullptr);
+		&returned, NULL);
 
 	if (!success) {
 		printf("DeviceIoControl() error: 0x%x\n", GetLastError());

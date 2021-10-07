@@ -12,7 +12,7 @@ NTSTATUS MapPhysicalMemory(PUINT_PTR VirtualAddress, UINT_PTR PhysicalAddress, S
 	PHYSICAL_ADDRESS ViewBase;
 	PUCHAR pBaseAddress = NULL;
 
-    if (PhysicalAddress & 0xfff) {
+	if (PhysicalAddress & 0xfff) {
 		status = STATUS_INVALID_PARAMETER;
 		goto error;
 	}
@@ -118,7 +118,7 @@ NTSTATUS PhysmemDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 
 			PhysmemRequest = (PPHYSMEM_REQUEST)Irp->AssociatedIrp.SystemBuffer;
 
-			if (PhysmemRequest == nullptr) {
+			if (PhysmemRequest == NULL) {
 				status = STATUS_INVALID_PARAMETER;
 				break;
 			}
@@ -149,7 +149,6 @@ NTSTATUS PhysmemDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	return status;
 }
 
-extern "C"
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) {
 	NTSTATUS status;
 	UNREFERENCED_PARAMETER(RegistryPath);

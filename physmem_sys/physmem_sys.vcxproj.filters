@@ -19,7 +19,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="driver.cpp">
+    <ClCompile Include="driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
