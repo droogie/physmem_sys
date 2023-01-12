@@ -12,4 +12,6 @@ You can trivially load/unload the driver leveraging the [OSR](https://www.osronl
 
 ## Usage
 
-The `IOCTL` expects that the physical address provided is page aligned. The included `client` project will perform a `hexdump()` of a page_aligned physical address and length.
+The `IOCTL` for physical memory mapping expects that the physical address provided is page aligned. The included `client` project will perform a `hexdump()` of a page_aligned physical address and length.
+
+There is also an `IOCTL` for IO Port access, for the reading and writing of `byte`, `word` and `dword` using the defined command structures, the client has an example of reading the current keyboard scancode from IO Port 0x60.
