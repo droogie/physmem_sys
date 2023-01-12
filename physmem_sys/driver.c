@@ -80,6 +80,41 @@ error:
 	goto done;
 }
 
+NTSTATUS IoPortAccess(UINT16 Port, UINT8 Op, PUINT32 Buffer) {
+	NTSTATUS status = STATUS_SUCCESS;
+	switch (Op) {
+		case CMD_IO_READ_BYTE:
+			*((UCHAR *)Buffer) = __inbyte(Port);
+			break;
+
+		case CMD_IO_READ_WORD:
+			*((UINT16 *)Buffer) = __inword(Port);
+			break;
+
+		case CMD_IO_READ_DWORD:
+			*Buffer = __indword(Port);
+			break;
+
+		case CMD_IO_WRITE_BYTE:
+			__outbyte(Port, *((UCHAR *)Buffer));
+			break;
+
+		case CMD_IO_WRITE_WORD:
+			__outword(Port, *((UINT16 *)Buffer));
+			break;
+
+		case CMD_IO_WRITE_DWORD:
+			__outdword(Port, *Buffer);
+			break;
+
+		default:
+			status = STATUS_INVALID_PARAMETER;
+			break;
+	}
+
+	return status;
+}
+
 void PhysmemUnload(PDRIVER_OBJECT DriverObject) {
 
 	IoDeleteSymbolicLink(&SYMLINK);
@@ -99,9 +134,10 @@ NTSTATUS PhysmemDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	UNREFERENCED_PARAMETER(DeviceObject);
 	
 	IO_STACK_LOCATION* stack = IoGetCurrentIrpStackLocation(Irp);
-	NTSTATUS status = STATUS_SUCCESS;
+	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
 	ULONG len;
 	PPHYSMEM_REQUEST PhysmemRequest;
+	PIO_PORT_REQUEST IoPortRequest;
 
 	switch (stack->Parameters.DeviceIoControl.IoControlCode) {
 		case IOCTL_PHYSMEM_GET_OBJECT_HANDLE:
@@ -133,6 +169,30 @@ NTSTATUS PhysmemDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 				PhysmemRequest->Size);
 
 			Irp->IoStatus.Information = sizeof(UINT_PTR);
+
+			break;
+
+		case IOCTL_PHYSMEM_ACCESS_IO_PORT:
+			len = stack->Parameters.DeviceIoControl.InputBufferLength;
+
+			if (len < sizeof(IO_PORT_REQUEST)) {
+				status = STATUS_BUFFER_TOO_SMALL;
+				break;
+			}
+			else if (len > sizeof(IO_PORT_REQUEST)) {
+				status = STATUS_BUFFER_OVERFLOW;
+				break;
+			}
+
+			IoPortRequest = (PIO_PORT_REQUEST)Irp->AssociatedIrp.SystemBuffer;
+
+			if (IoPortRequest == NULL) {
+				status = STATUS_INVALID_PARAMETER;
+				break;
+			}
+
+			status = IoPortAccess(IoPortRequest->Port, IoPortRequest->Op, &(IoPortRequest->Data));
+			Irp->IoStatus.Information = sizeof(IO_PORT_REQUEST);
 
 			break;
 

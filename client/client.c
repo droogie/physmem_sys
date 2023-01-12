@@ -69,6 +69,45 @@ int main(int argc, char* argv[]) {
 	printf("Size: 0x%llx\n", PhysmemRequest.Size);
 	hexdump((unsigned char*)virtaddr, PhysmemRequest.Size);
 
+	UINT16 port = 0x60;
+	IO_PORT_REQUEST IoPortRequest = { 0 };
+
+
+	IoPortRequest.Port = port;
+	IoPortRequest.Op = CMD_IO_WRITE_BYTE;
+	IoPortRequest.Data = 0xff;
+
+	success = DeviceIoControl(hDevice,
+		IOCTL_PHYSMEM_ACCESS_IO_PORT,
+		&IoPortRequest, sizeof(IO_PORT_REQUEST),
+		&IoPortRequest, sizeof(IO_PORT_REQUEST),
+		&returned, NULL);
+
+	if (!success) {
+		printf("DeviceIoControl() error: 0x%x\n", GetLastError());
+		goto done;
+	}
+
+	printf("Wrote 0x%x to port 0x%02x.\n", IoPortRequest.Data, IoPortRequest.Port);
+
+	Sleep(10);
+
+	IoPortRequest.Port = port;
+	IoPortRequest.Op = CMD_IO_READ_BYTE;
+	
+	success = DeviceIoControl(hDevice,
+		IOCTL_PHYSMEM_ACCESS_IO_PORT,
+		&IoPortRequest, sizeof(IO_PORT_REQUEST),
+		&IoPortRequest, sizeof(IO_PORT_REQUEST),
+		&returned, NULL);
+
+	if (!success) {
+		printf("DeviceIoControl() error: 0x%x\n", GetLastError());
+		goto done;
+	}
+
+	printf("Received from IO Port 0x%02x: 0x%x\n", IoPortRequest.Port, IoPortRequest.Data);
+
 	done:
 	CloseHandle(hDevice);
 }
